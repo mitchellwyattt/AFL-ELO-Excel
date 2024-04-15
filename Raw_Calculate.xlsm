@@ -1,0 +1,136 @@
+'VBA Code 
+
+'Iterates through the listed AFL games within a given period and calculates/formats the win, losses, total games, win pct in sheet 2
+
+Sub Raw_calculate()
+
+    Dim away_team As String
+    Dim home_team As String
+
+    start_line = 2
+    end_line = Sheet1.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    Sheet2.Range("A2:E999").ClearContents
+    Sheet3.Range("B2:E999").ClearContents
+    
+    new_line = 1
+    
+    For start_line = 2 To end_line
+    
+        loca = Sheet1.Cells(start_line, 1).Value
+        away_team = Sheet1.Cells(start_line, 2).Value
+        home_team = Sheet1.Cells(start_line, 3).Value
+        away_score = Sheet1.Cells(start_line, 4).Value
+        home_score = Sheet1.Cells(start_line, 5).Value
+        
+        away_lookup = Team_Lookup(away_team)
+        
+        If away_lookup = 0 Then
+        
+            new_line = new_line + 1
+            away_lookup = new_line
+            Sheet2.Cells(away_lookup, 1).Value = away_team
+            
+        
+        End If
+        
+        If away_score > home_score Then
+        
+            Sheet2.Cells(away_lookup, 2).Value = Sheet2.Cells(away_lookup, 2).Value + 1
+            
+        Else
+            
+            Sheet2.Cells(away_lookup, 3).Value = Sheet2.Cells(away_lookup, 3).Value + 1
+
+        
+        End If
+        
+        Sheet2.Cells(away_lookup, 4).Value = Sheet2.Cells(away_lookup, 4).Value + 1
+        
+        'Home Team Lookup
+        
+        home_lookup = Team_Lookup(home_team)
+        
+        If home_lookup = 0 Then
+        
+            new_line = new_line + 1
+            home_lookup = new_line
+            Sheet2.Cells(home_lookup, 1).Value = home_team
+        
+        End If
+        
+        If home_score > away_score Then
+        
+            Sheet2.Cells(home_lookup, 2).Value = Sheet2.Cells(home_lookup, 2).Value + 1
+            
+        Else
+            
+            Sheet2.Cells(home_lookup, 3).Value = Sheet2.Cells(home_lookup, 3).Value + 1
+
+        
+        End If
+        
+        Sheet2.Cells(home_lookup, 4).Value = Sheet2.Cells(home_lookup, 4).Value + 1
+        
+        If loca = "H" Then
+        
+            If home_score > away_score Then
+                Sheet3.Cells(2, 2).Value = Sheet3.Cells(2, 2).Value + 1
+                Sheet3.Cells(3, 3).Value = Sheet3.Cells(3, 3).Value + 1
+            Else
+                Sheet3.Cells(2, 3).Value = Sheet3.Cells(2, 3).Value + 1
+                Sheet3.Cells(3, 2).Value = Sheet3.Cells(3, 2).Value + 1
+            End If
+            
+            Sheet3.Cells(2, 4).Value = Sheet3.Cells(2, 4).Value + 1
+            Sheet3.Cells(3, 4).Value = Sheet3.Cells(3, 4).Value + 1
+            
+        
+        End If
+    
+    Next start_line
+    
+    start_line = 2
+    end_line = Sheet2.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    For start_line = 2 To end_line
+    
+        wins = Sheet2.Cells(start_line, 2).Value
+        games = Sheet2.Cells(start_line, 4).Value
+        
+        Sheet2.Cells(start_line, 5) = wins / games
+    
+    Next start_line
+    
+    Sheet3.Cells(2, 5).Value = Sheet3.Cells(2, 2).Value / Sheet3.Cells(2, 4).Value
+    Sheet3.Cells(3, 5).Value = Sheet3.Cells(3, 2).Value / Sheet3.Cells(3, 4).Value
+
+End Sub
+
+'Team look up function 
+'takes one parameter team_param, which is a string, and performs a search on a specific worksheet (Sheet2) 
+
+Function Team_Lookup(team_param As String)
+
+    start_line = 2
+    end_line = Sheet2.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    output_line = 0
+    
+    For start_line = 2 To end_line
+    
+        team_sheet2 = Sheet2.Cells(start_line, 1).Value
+        
+        If team_sheet2 = team_param Then
+        
+            output_line = start_line
+            Team_Lookup = output_line
+        
+        End If
+
+    Next start_line
+    
+    Team_Lookup = output_line
+
+
+End Function
