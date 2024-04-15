@@ -1,0 +1,76 @@
+'First Adjustment Round 
+'adjust and calculate sports team performance metrics based on their scores, their win percentages, and a computed league average
+
+Sub Adjustment_Round1()
+
+    Dim away_team As String
+    Dim home_team As String
+
+    start_line = 2
+    end_line = Sheet1.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    Sheet2.Range("F2:G999").ClearContents
+    
+    home_wp = Sheet3.Cells(2, 5).Value
+    away_wp = Sheet3.Cells(3, 5).Value
+    
+    league_avg = (home_wp + away_wp) / 2
+    
+    home_adv = home_wp - league_avg
+    away_adv = away_wp - league_avg
+    
+    
+    new_line = 1
+    
+    For start_line = 2 To end_line
+    
+        loca = Sheet1.Cells(start_line, 1).Value
+        away_team = Sheet1.Cells(start_line, 2).Value
+        home_team = Sheet1.Cells(start_line, 3).Value
+        away_score = Sheet1.Cells(start_line, 4).Value
+        home_score = Sheet1.Cells(start_line, 5).Value
+        
+        away_lookup = Team_Lookup(away_team)
+        home_lookup = Team_Lookup(home_team)
+        
+        If away_lookup = 0 Or home_lookup = 0 Then
+            MsgBox "Team not found in the lookup table."
+            Exit Sub
+        
+        End If
+
+        
+        away_winpct = Sheet2.Cells(away_lookup, 5).Value
+        home_winpct = Sheet2.Cells(home_lookup, 5).Value
+        
+        away_dif = away_winpct - league_avg
+        home_dif = home_winpct - league_avg
+        
+        If loca = "H" Then
+        
+            Sheet2.Cells(away_lookup, 6).Value = Sheet2.Cells(away_lookup, 6).Value + home_dif + home_adv
+            Sheet2.Cells(home_lookup, 6).Value = Sheet2.Cells(home_lookup, 6).Value + away_dif + away_adv
+            
+        Else
+            Sheet2.Cells(away_lookup, 6).Value = Sheet2.Cells(away_lookup, 6).Value + home_dif + home_adv
+            Sheet2.Cells(home_lookup, 6).Value = Sheet2.Cells(home_lookup, 6).Value + away_dif + away_adv
+            
+        End If
+        
+    Next start_line
+        
+    start_line = 2
+    end_line = Sheet2.Cells(Rows.Count, "A").End(xlUp).Row
+    
+    For start_line = 2 To end_line
+    
+        adj = Sheet2.Cells(start_line, 6).Value
+        games = Sheet2.Cells(start_line, 4).Value
+        
+        Sheet2.Cells(start_line, 6).Value = adj / games
+        Sheet2.Cells(start_line, 7).Value = Sheet2.Cells(start_line, 5) + adj / games
+    
+    Next start_line
+            
+
+End Sub
